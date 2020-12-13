@@ -33,10 +33,18 @@ For example, suppose your expense report contained the following:
 In this list, the two entries that sum to 2020 are 1721 and 299. Multiplying them together produces 1721 * 299 = 514579, so the correct answer is 514579.
 
 Of course, your expense report is much larger. Find the two entries that sum to 2020; what do you get if you multiply them together?
+
+--- Part Two ---
+The Elves in accounting are thankful for your help; one of them even offers you a starfish coin they had left over from a past vacation. They offer you a second one if you can find three numbers in your expense report that meet the same criteria.
+
+Using the above example again, the three entries that sum to 2020 are 979, 366, and 675. Multiplying them together produces the answer, 241861950.
+
+In your expense report, what is the product of the three entries that sum to 2020?
+
 */
 
 func main() {
-	expenseMap := make(map[int]struct{})
+	var expenses []int
 	file, err := os.Open("input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -50,13 +58,19 @@ func main() {
 		if err != nil {
 			panic("Expense not an integer")
 		}
-
-		if _, exists := expenseMap[2020-expense]; exists {
-			fmt.Println((2020-expense)* expense)
-			return
+		expenses = append(expenses, expense)
+	}
+	expensesMap := make(map[int]struct{})
+	for i := 0; i < len(expenses); i++ {
+		currSum := 2020 - expenses[i]
+		for j := i + 1; j < len(expenses); j++ {
+			if _, exists := expensesMap[currSum-expenses[j]]; exists {
+				fmt.Println(expenses[i] * expenses[j] * (currSum - expenses[j]))
+				return
+			}
+			expensesMap[expenses[j]] = struct{}{}
 		}
-
-		expenseMap[expense] = struct{}{}
+		expensesMap = make(map[int]struct{})
 	}
 	fmt.Println("There is no answer to this!")
 }
