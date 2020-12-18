@@ -79,7 +79,7 @@ type slopeLine struct {
 }
 
 func (s *slopeLine) isTree(pos int) bool {
-	if pos > s.length {
+	if pos >= s.length {
 		pos = pos % s.length
 	}
 	if len(s.treePositions) == 0 {
@@ -96,6 +96,7 @@ func (s *slopeLine) isTree(pos int) bool {
 		}
 		currTreeIdx++
 	}
+
 	return false
 }
 
@@ -129,21 +130,21 @@ func getTreesEncountered(slopeLines []interface{}, right int, down int) int {
 	currCol := 0
 	currRow := 0
 	treeCtr := 0
-	for currRow < len(slopeLines) {
-                if slopeLines[currRow].(*slopeLine).isTree(currCol) {
-                        treeCtr++
-                }
-                currCol += right
+	for currRow+down < len(slopeLines) {
+		currCol += right
 		currRow += down
+		if slopeLines[currRow].(*slopeLine).isTree(currCol) {
+			treeCtr++
+		}
 	}
 	fmt.Println(treeCtr)
 	return treeCtr
 }
 
 func part2() {
-        ir := reader.NewInputReader("input.txt", lineParser)
-        slopeLines := ir.ParseInput()
-        var answer int64
+	ir := reader.NewInputReader("input.txt", lineParser)
+	slopeLines := ir.ParseInput()
+	var answer int64
 	answer = int64(getTreesEncountered(slopeLines, 1, 1)) * int64(getTreesEncountered(slopeLines, 3, 1)) * int64(getTreesEncountered(slopeLines, 5, 1)) * int64(getTreesEncountered(slopeLines, 7, 1)) * int64(getTreesEncountered(slopeLines, 1, 2))
 	fmt.Println(answer)
 }
