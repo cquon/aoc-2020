@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"github.com/cquon/aoc-2020/inputreader"
+	"log"
 )
 
 /*
@@ -45,25 +45,34 @@ FFFBBBFRRR: row 14, column 7, seat ID 119.
 BBFFBBFRLL: row 102, column 4, seat ID 820.
 As a sanity check, look through your list of boarding passes. What is the highest seat ID on a boarding pass?
 
+--- Part Two ---
+Ding! The "fasten seat belt" signs have turned on. Time to find your seat.
+
+It's a completely full flight, so your seat should be the only missing boarding pass in your list. However, there's a catch: some of the seats at the very front and back of the plane don't exist on this aircraft, so they'll be missing from your list as well.
+
+Your seat wasn't at the very front or back, though; the seats with IDs +1 and -1 from yours will be in your list.
+
+What is the ID of your seat?
+
 */
 
 type ticketLine struct {
 	rowSequence []byte
-	colSequence []byte	
+	colSequence []byte
 }
 
-func (t *ticketLine) getRow()  int {
+func (t *ticketLine) getRow() int {
 	return binarySearch(0, 127, t.rowSequence)
 }
 
-func (t *ticketLine) getColumn()  int {
+func (t *ticketLine) getColumn() int {
 	return binarySearch(0, 7, t.colSequence)
 }
 
 func (t *ticketLine) getID() int {
 	row := t.getRow()
 	column := t.getColumn()
-	return row * 8 + column
+	return row*8 + column
 }
 
 func lineParser(b []byte) interface{} {
@@ -76,7 +85,7 @@ func lineParser(b []byte) interface{} {
 		colSequence: make([]byte, 3),
 	}
 	copy(tl.rowSequence, b[:7])
-	copy(tl.colSequence, b[7:])	
+	copy(tl.colSequence, b[7:])
 	return tl
 }
 
@@ -87,13 +96,13 @@ func binarySearch(lower int, upper int, sequence []byte) int {
 		}
 		return upper
 	}
-	mid := lower + (upper - lower) / 2
+	mid := lower + (upper-lower)/2
 	if sequence[0] == 'F' || sequence[0] == 'L' {
 		return binarySearch(lower, mid, sequence[1:])
 	} else {
 		return binarySearch(mid+1, upper, sequence[1:])
 	}
-}	
+}
 
 func part1() {
 	ir := reader.NewInputReader("input.txt", lineParser)
@@ -108,21 +117,27 @@ func part1() {
 	fmt.Println(maxId)
 }
 
+func part2() {
+	minSeatID := 8
+	maxSeatID := 126*8 + 7
+	seats := make([]interface{}, maxSeatID-minSeatID)
+	ir := reader.NewInputReader("input.txt", lineParser)
+	ticketLines := ir.ParseInput()
+	for _, ticket := range ticketLines {
+		id := ticket.(*ticketLine).getID()
+		seats[id-minSeatID] = struct{}{}
+	}
+
+	for idx := range seats {
+		if seats[idx] == nil {
+			fmt.Println(idx + minSeatID)
+		}
+	}
+}
+
 func main() {
 	part1()
+	part2()
 }
 
 // 994
-
-/*
-BBBBBFFLLL
-0-127
-64-127 B
-96-127 B
-112-127 B
-120-127 B
-124-127 B
-124-125 F
-124 F
-&{[66 66 66 66 66 70 70] [76 76 76]}
-*/
